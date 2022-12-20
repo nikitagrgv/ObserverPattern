@@ -21,6 +21,20 @@ using Callback = std::function<void()>;
         signal.clearCallbacks();                      \
     }
 
+#define DECLARE_SIGNAL_METHODS_KEEP(name, signal)      \
+    CallbackKeeper add##name##CallbackK(const Callback &callback) \
+    {                                                  \
+        return signal.addCallback(callback);           \
+    }                                                  \
+    void remove##name##CallbackK(int id)               \
+    {                                                  \
+        signal.removeCallback(id);                     \
+    }                                                  \
+    void clear##name##CallbacksK()                     \
+    {                                                  \
+        signal.clearCallbacks();                       \
+    }
+
 class Signal final
 {
 public:
@@ -72,6 +86,21 @@ class CallbackKeeper final
     friend class Signal;
 
 public:
+    CallbackKeeper(const CallbackKeeper&) = delete;
+    CallbackKeeper& operator=(const CallbackKeeper&) = delete;
+
+    CallbackKeeper(CallbackKeeper &&other) noexcept
+        : is_removed_(other.is_removed_),
+          signal_(other.signal_),
+          id_(other.id_)
+    {
+        other.is_removed_ = true;
+        other.signal_ = nullptr;
+        other.id_ = -1;
+    }
+
+    CallbackKeeper& operator=(CallbackKeeper&& other) = delete; // TODO do later
+
     void remove()
     {
         if (!is_removed_)
@@ -88,12 +117,12 @@ public:
 
 private:
     CallbackKeeper(Signal &signal, int id) : signal_(&signal), id_(id) {}
-    
+
 private:
     bool is_removed_{false};
 
     int id_{};
-    Signal* signal_{};
+    Signal* signal_{nullptr};
 };
 
 class DestroyNotify

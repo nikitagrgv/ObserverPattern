@@ -15,6 +15,7 @@ public:
     }
 
     DECLARE_SIGNAL_METHODS(SubjectChanged, signal_changed_);
+    DECLARE_SIGNAL_METHODS_KEEP(SubjectChanged, signal_changed_);
 
     int getValue() const { return value_; }
     void setValue(int val)
