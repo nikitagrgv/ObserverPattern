@@ -21,7 +21,7 @@ using Callback = std::function<void()>;
         signal.clearCallbacks();                      \
     }
 
-class Signal
+class Signal final
 {
 public:
     void invoke()
@@ -64,6 +64,36 @@ private:
 
 private:
     std::unordered_map<int, Callback> callbacks_{};
+};
+
+// TODO test
+class CallbackKeeper final
+{
+    friend class Signal;
+
+public:
+    void remove()
+    {
+        if (!is_removed_)
+        {
+            signal_->removeCallback(id_);
+            is_removed_ = true;
+        }
+    }
+
+private:
+    CallbackKeeper(Signal &signal, int id) : signal_(&signal), id_(id) {}
+
+    ~CallbackKeeper()
+    {
+        remove();
+    }
+
+private:
+    bool is_removed_{false};
+
+    int id_{};
+    Signal* signal_{};
 };
 
 class DestroyNotify
