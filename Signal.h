@@ -81,14 +81,14 @@ public:
         }
     }
 
-private:
-    CallbackKeeper(Signal &signal, int id) : signal_(&signal), id_(id) {}
-
     ~CallbackKeeper()
     {
         remove();
     }
 
+private:
+    CallbackKeeper(Signal &signal, int id) : signal_(&signal), id_(id) {}
+    
 private:
     bool is_removed_{false};
 
